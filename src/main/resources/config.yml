@@ -1,0 +1,18 @@
+# config.yml
+welcome-message: "§6Welcome to the §eMazerunner §6event!"
+
+scoreboard:
+  enabled: true
+  title: "§6§lMaze§e§lRunner"
+  lines:
+    - "§7§m------------------"
+    - "§eTeams: §6{teams}"
+    - "§ePlayers: §6{players}"
+    - "§eGame Mode: §6{gamemode}"
+    - "§7§m------------------"
+    - "§e{team1}"
+    - "§b{team2}"
+    - "§c{team3}"
+    - "§6{team4}"
+    - "§7"
+    - "§7§m------------------"
