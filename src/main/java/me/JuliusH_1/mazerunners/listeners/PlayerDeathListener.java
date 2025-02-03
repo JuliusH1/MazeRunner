@@ -23,6 +23,9 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        String deathMessage = plugin.getConfig().getString("death-message").replace("{player}", player.getName());
+        event.setDeathMessage(deathMessage);
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             String gameMode = commandExecutor.getGameMode();
             Location respawnLocation;

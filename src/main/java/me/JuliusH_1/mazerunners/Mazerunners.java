@@ -1,12 +1,12 @@
 package me.JuliusH_1.mazerunners;
 
-import me.JuliusH_1.mazerunners.listeners.PlayerDeathListener;
-import me.JuliusH_1.mazerunners.listeners.PlayerRespawnListener;
-import me.JuliusH_1.mazerunners.listeners.PlayerJoinQuitListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +15,6 @@ import java.util.Set;
 
 public final class Mazerunners extends JavaPlugin {
 
-    private MazerunnerCommandExecutor commandExecutor;
     private final Map<Integer, String> ongoingEvents = new HashMap<>();
     private final Map<Integer, Set<String>> eventPlayers = new HashMap<>();
     private int nextEventNumber = 1;
@@ -23,22 +22,8 @@ public final class Mazerunners extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-
-        commandExecutor = new MazerunnerCommandExecutor(this);
-        getCommand("mazerunner").setExecutor(commandExecutor);
-        getCommand("mazerunner").setTabCompleter(new MazerunnerTabCompleter());
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, commandExecutor), this);
-        getServer().getPluginManager().registerEvents(new PlayerRespawnListener(this), this);
-
-        ScoreboardManager scoreboardManager = new ScoreboardManager(this, commandExecutor);
-        getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(scoreboardManager), this);
-
-        if (getConfig().getBoolean("scoreboard.enabled")) {
-            getServer().getScheduler().runTaskTimer(this, () -> {
-                getServer().getOnlinePlayers().forEach(scoreboardManager::updateScoreboard);
-            }, 0L, 20L * 5);
-        }
-
+        getCommand("mazerunner").setExecutor(new MazerunnerCommandExecutor(this));
+        getCommand("event").setExecutor(new MazerunnerCommandExecutor(this));
         getLogger().info("Mazerunners plugin enabled!");
     }
 
@@ -47,16 +32,39 @@ public final class Mazerunners extends JavaPlugin {
         getLogger().info("Mazerunners plugin disabled!");
     }
 
-    public void startEvent(Set<Player> players) {
+    public void startEvent(Set<Player> players, int teamNumbers, int playersPerTeam, String gameMode, int durationInSeconds) {
         String eventName = "Event_" + nextEventNumber;
         ongoingEvents.put(nextEventNumber, eventName);
         Set<String> playerNames = new HashSet<>();
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
+        for (int i = 1; i <= teamNumbers; i++) {
+            Team team = scoreboard.registerNewTeam("team" + i);
+            team.setDisplayName("Team " + i);
+        }
+
+        int teamIndex = 1;
         for (Player player : players) {
             playerNames.add(player.getName());
+            Team team = scoreboard.getTeam("team" + teamIndex);
+            if (team != null) {
+                team.addEntry(player.getName());
+            }
+            if (team.getEntries().size() >= playersPerTeam) {
+                teamIndex++;
+            }
         }
+
         eventPlayers.put(nextEventNumber, playerNames);
         nextEventNumber++;
-        getServer().broadcastMessage("The Mazerunner event '" + eventName + "' has started!");
+        getServer().broadcastMessage("The Mazerunner event '" + eventName + "' has started with " + teamNumbers + " teams, " + playersPerTeam + " players per team, in " + gameMode + " mode!");
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                endEvent(nextEventNumber - 1);
+            }
+        }.runTaskLater(this, durationInSeconds * 20L);
     }
 
     public void endEvent(int eventNumber) {
@@ -64,13 +72,11 @@ public final class Mazerunners extends JavaPlugin {
         Set<String> players = eventPlayers.remove(eventNumber);
         if (eventName != null) {
             getServer().broadcastMessage("The Mazerunner event '" + eventName + "' has ended!");
-            Location respawnLocation = commandExecutor.getRespawnLocation();
-            if (respawnLocation != null) {
-                for (String playerName : players) {
-                    Player player = Bukkit.getPlayer(playerName);
-                    if (player != null) {
-                        player.teleport(respawnLocation);
-                    }
+            Location respawnLocation = new Location(Bukkit.getWorld("world"), 0, 64, 0);
+            for (String playerName : players) {
+                Player player = Bukkit.getPlayer(playerName);
+                if (player != null) {
+                    player.teleport(respawnLocation);
                 }
             }
         } else {
@@ -84,9 +90,5 @@ public final class Mazerunners extends JavaPlugin {
 
     public Set<String> getEventPlayers(int eventNumber) {
         return eventPlayers.getOrDefault(eventNumber, new HashSet<>());
-    }
-
-    public MazerunnerCommandExecutor getCommandExecutor() {
-        return commandExecutor;
     }
 }

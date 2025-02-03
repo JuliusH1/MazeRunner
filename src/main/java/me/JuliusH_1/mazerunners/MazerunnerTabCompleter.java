@@ -17,11 +17,11 @@ public class MazerunnerTabCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("mazerunner")) {
             if (args.length == 1) {
-                return Arrays.asList("start", "respawn", "spectate", "teamspawn", "event", "team");
+                return Arrays.asList("start", "respawn", "spectate", "teamspawn", "end", "events", "players", "team");
             } else if (args.length == 2 && args[0].equalsIgnoreCase("team")) {
                 return Arrays.asList("1", "2", "3", "4"); // List of team numbers
             } else if (args.length == 3 && args[0].equalsIgnoreCase("team")) {
-                return Arrays.asList("add", "remove");
+                return Arrays.asList("add", "remove", "list");
             } else if (args.length == 4 && args[0].equalsIgnoreCase("team")) {
                 return Bukkit.getOnlinePlayers().stream()
                         .map(Player::getName)
@@ -35,7 +35,7 @@ public class MazerunnerTabCompleter implements TabCompleter {
             } else if (args.length == 2 && args[0].equalsIgnoreCase("teamspawn")) {
                 return Arrays.asList("1", "2", "3", "4");
             } else if (args.length == 2 && args[0].equalsIgnoreCase("event")) {
-                return Arrays.asList("start", "end");
+                return Arrays.asList("end");
             }
         }
         return new ArrayList<>();

@@ -28,25 +28,25 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("Usage: /mazerunner <start|respawn|spectate|teamspawn|end|events|players|team>");
+            sender.sendMessage("Usage: /mazerunner <start|respawn|spectate|teamspawn|events|players|team|event>");
             return false;
         }
 
         if (args[0].equalsIgnoreCase("start")) {
-            if (args.length != 4) {
-                sender.sendMessage("Usage: /mazerunner start <teamnumbers> <amountofplayersinteam> <hardcore|survival>");
+            if (args.length != 5) {
+                sender.sendMessage("Usage: /mazerunner start <teamnumbers> <amountofplayersinteam> <hardcore|survival> <durationInSeconds>");
                 return false;
             }
             int teamNumbers = Integer.parseInt(args[1]);
             int playersPerTeam = Integer.parseInt(args[2]);
             gameMode = args[3].toLowerCase();
+            int durationInSeconds = Integer.parseInt(args[4]);
             if (!gameMode.equals("hardcore") && !gameMode.equals("survival")) {
                 sender.sendMessage("Invalid game mode. Use 'hardcore' or 'survival'.");
                 return false;
             }
             Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
-            ((Mazerunners) plugin).startEvent(players);
-            startEvent(teamNumbers, playersPerTeam);
+            ((Mazerunners) plugin).startEvent(players, teamNumbers, playersPerTeam, gameMode, durationInSeconds);
             return true;
         } else if (args[0].equalsIgnoreCase("respawn")) {
             if (sender instanceof Player) {
@@ -79,14 +79,6 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
                 sender.sendMessage("Only players can set the team spawn location.");
             }
             return true;
-        } else if (args[0].equalsIgnoreCase("end")) {
-            if (args.length != 2) {
-                sender.sendMessage("Usage: /mazerunner end <eventNumber>");
-                return false;
-            }
-            int eventNumber = Integer.parseInt(args[1]);
-            ((Mazerunners) plugin).endEvent(eventNumber);
-            return true;
         } else if (args[0].equalsIgnoreCase("events")) {
             Map<Integer, String> ongoingEvents = ((Mazerunners) plugin).getOngoingEvents();
             if (ongoingEvents.isEmpty()) {
@@ -103,20 +95,24 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
                 sender.sendMessage("Usage: /mazerunner players <eventNumber>");
                 return false;
             }
-            int eventNumber = Integer.parseInt(args[1]);
-            Set<String> players = ((Mazerunners) plugin).getEventPlayers(eventNumber);
-            if (players.isEmpty()) {
-                sender.sendMessage("No players found for event number " + eventNumber);
-            } else {
-                sender.sendMessage("Players in event number " + eventNumber + ":");
-                for (String player : players) {
-                    sender.sendMessage("- " + player);
+            try {
+                int eventNumber = Integer.parseInt(args[1]);
+                Set<String> players = ((Mazerunners) plugin).getEventPlayers(eventNumber);
+                if (players.isEmpty()) {
+                    sender.sendMessage("No players found for event number " + eventNumber);
+                } else {
+                    sender.sendMessage("Players in event number " + eventNumber + ":");
+                    for (String player : players) {
+                        sender.sendMessage("- " + player);
+                    }
                 }
+            } catch (NumberFormatException e) {
+                sender.sendMessage("Invalid event number.");
             }
             return true;
         } else if (args[0].equalsIgnoreCase("team")) {
-            if (args.length != 4) {
-                sender.sendMessage("Usage: /mazerunner team <teamnumber> add/remove <playername>");
+            if (args.length < 3) {
+                sender.sendMessage("Usage: /mazerunner team <teamnumber> <add|remove|list> [playername]");
                 return false;
             }
             int teamNumber;
@@ -128,6 +124,16 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
             }
 
             String action = args[2];
+            if (action.equalsIgnoreCase("list")) {
+                listTeamPlayers(sender, teamNumber);
+                return true;
+            }
+
+            if (args.length != 4) {
+                sender.sendMessage("Usage: /mazerunner team <teamnumber> <add|remove> <playername>");
+                return false;
+            }
+
             String playerName = args[3];
             Player player = Bukkit.getPlayer(playerName);
             if (player == null) {
@@ -142,84 +148,72 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
                 removePlayerFromTeam(player, teamNumber);
                 sender.sendMessage("Player " + playerName + " removed from team " + teamNumber);
             } else {
-                sender.sendMessage("Invalid action. Use 'add' or 'remove'.");
+                sender.sendMessage("Invalid action. Use 'add', 'remove', or 'list'.");
                 return false;
             }
             return true;
+        } else if (args[0].equalsIgnoreCase("event")) {
+            if (args.length == 2 && args[1].equalsIgnoreCase("help")) {
+                showHelp(sender);
+                return true;
+            } else if (args.length == 3 && args[1].equalsIgnoreCase("end")) {
+                int eventNumber = Integer.parseInt(args[2]);
+                ((Mazerunners) plugin).endEvent(eventNumber);
+                return true;
+            } else {
+                sender.sendMessage("Usage: /mazerunner event <help|end> [eventNumber]");
+                return false;
+            }
         }
 
         return false;
     }
 
-    private void startEvent(int teamNumbers, int playersPerTeam) {
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-
-        // Clear existing teams
-        for (Team team : scoreboard.getTeams()) {
-            team.unregister();
+    private void showHelp(CommandSender sender) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            player.sendMessage("§6§lMaze§e§lRunner §6Commands:");
+            player.sendMessage("§e/mazerunner start - Start a new Mazerunner event.");
+            player.sendMessage("§e/mazerunner stop - Stop the current Mazerunner event.");
+            player.sendMessage("§e/mazerunner join - Join the current Mazerunner event.");
+            player.sendMessage("§e/mazerunner leave - Leave the current Mazerunner event.");
+            player.sendMessage("§e/mazerunner help - Show this help message.");
+            // Add more commands and features as needed
+        } else {
+            sender.sendMessage("This command can only be used by players.");
         }
-
-        // Create new teams
-        List<Team> teams = new ArrayList<>();
-        for (int i = 1; i <= teamNumbers; i++) {
-            Team team = scoreboard.registerNewTeam("Team" + i);
-            teams.add(team);
-        }
-
-        // Get all online players and shuffle them
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-        Collections.shuffle(players);
-
-        // Assign players to teams and teleport them to their team spawn locations
-        int teamIndex = 0;
-        for (Player player : players) {
-            if (teams.get(teamIndex).getSize() < playersPerTeam) {
-                teams.get(teamIndex).addEntry(player.getName());
-                Location spawnLocation = teamSpawns.get(teamIndex + 1);
-                if (spawnLocation != null) {
-                    player.teleport(spawnLocation);
-                } else {
-                    player.sendMessage("No spawn location set for team " + (teamIndex + 1));
-                }
-            } else {
-                teamIndex++;
-                if (teamIndex >= teams.size()) {
-                    break;
-                }
-                teams.get(teamIndex).addEntry(player.getName());
-                Location spawnLocation = teamSpawns.get(teamIndex + 1);
-                if (spawnLocation != null) {
-                    player.teleport(spawnLocation);
-                } else {
-                    player.sendMessage("No spawn location set for team " + (teamIndex + 1));
-                }
-            }
-        }
-
-        Bukkit.broadcastMessage("Starting Mazerunner event with " + teamNumbers + " teams and " + playersPerTeam + " players per team in " + gameMode + " mode.");
     }
 
     private void spectateTeam(Player player) {
-        Team team = player.getScoreboard().getEntryTeam(player.getName());
+        if ("survival".equalsIgnoreCase(gameMode)) {
+            player.sendMessage("You cannot use this command in a survival event!");
+            return;
+        }
+
+        Team team = player.getScoreboard().getPlayerTeam(player);
         if (team != null) {
+            boolean foundTeamMember = false;
             for (String entry : team.getEntries()) {
                 Player teamMember = Bukkit.getPlayer(entry);
                 if (teamMember != null && !teamMember.equals(player)) {
                     player.setGameMode(GameMode.SPECTATOR);
                     player.teleport(teamMember.getLocation());
                     player.sendMessage("You are now spectating " + teamMember.getName());
-                    return;
+                    foundTeamMember = true;
+                    break;
                 }
             }
-            player.sendMessage("No team members to spectate.");
+            if (!foundTeamMember) {
+                player.sendMessage("There is no one to spectate!");
+            }
         } else {
-            player.sendMessage("You are not in a team.");
+            player.sendMessage("You are not in a team!");
         }
     }
 
     private void addPlayerToTeam(Player player, int teamNumber) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        Team team = scoreboard.getTeam("Team" + teamNumber);
+        Team team = scoreboard.getTeam("team" + teamNumber);
         if (team != null) {
             team.addEntry(player.getName());
         } else {
@@ -229,11 +223,30 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
 
     private void removePlayerFromTeam(Player player, int teamNumber) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        Team team = scoreboard.getTeam("Team" + teamNumber);
+        Team team = scoreboard.getTeam("team" + teamNumber);
         if (team != null) {
             team.removeEntry(player.getName());
         } else {
             player.sendMessage("Team " + teamNumber + " does not exist.");
+        }
+    }
+
+    private void listTeamPlayers(CommandSender sender, int teamNumber) {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        Team team = scoreboard.getTeam("team" + teamNumber);
+        if (team == null) {
+            sender.sendMessage("Team " + teamNumber + " does not exist.");
+            return;
+        }
+
+        Set<String> players = team.getEntries();
+        if (players.isEmpty()) {
+            sender.sendMessage("No players in team " + teamNumber);
+        } else {
+            sender.sendMessage("Players in team " + teamNumber + ":");
+            for (String player : players) {
+                sender.sendMessage("- " + player);
+            }
         }
     }
 

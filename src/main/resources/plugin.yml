@@ -1,6 +1,7 @@
 name: mazerunners
 version: 1.0
 main: me.JuliusH_1.mazerunners.Mazerunners
+api-version: 1.21
 commands:
   mazerunner:
     description: Main command for the MazeRunners plugin

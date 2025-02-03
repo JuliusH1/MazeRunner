@@ -2,9 +2,9 @@
 
 MazeRunner is a Minecraft plugin that adds a maze-running event to the game. Players can join teams, set spawn points, and compete in different game modes.
 
-###This plugin is still in development and not yet ready for production use.
+### This plugin is still in development and not yet ready for production use.
 
-###This plugin has been created for the server [VoidCraft Network](https://shop.voidcraftmc.net)
+### This plugin has been created for the server [VoidCraft Network](https://shop.voidcraftmc.net)
 
 ## Features
 

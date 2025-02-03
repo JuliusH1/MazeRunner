@@ -1,5 +1,6 @@
 # config.yml
-welcome-message: "§6Welcome to the §eMazerunner §6event!"
+welcome-message: "§6Welcome {player} to the §eMazerunner §6event!"
+death-message: "§c{player} has been eliminated!"
 
 scoreboard:
   enabled: true
