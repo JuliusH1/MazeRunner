@@ -1,5 +1,6 @@
 package me.JuliusH_1.mazerunners.listeners;
 
+import me.JuliusH_1.mazerunners.MazerunnerCommandExecutor;
 import me.JuliusH_1.mazerunners.Mazerunners;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -19,14 +20,15 @@ public class PlayerRespawnListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        String gameMode = plugin.getCommandExecutor().getGameMode();
+        MazerunnerCommandExecutor commandExecutor = (MazerunnerCommandExecutor) plugin.getCommand("mazerunner").getExecutor();
+        String gameMode = commandExecutor.getGameMode();
         Location respawnLocation;
 
         if ("hardcore".equalsIgnoreCase(gameMode)) {
-            respawnLocation = plugin.getCommandExecutor().getRespawnLocation();
+            respawnLocation = commandExecutor.getRespawnLocation();
         } else if ("survival".equalsIgnoreCase(gameMode)) {
             int teamNumber = getTeamNumber(player);
-            respawnLocation = plugin.getCommandExecutor().getTeamSpawnLocation(teamNumber);
+            respawnLocation = commandExecutor.getTeamSpawnLocation(teamNumber);
         } else {
             respawnLocation = new Location(plugin.getServer().getWorld("world"), 0, 64, 0); // Default location
         }

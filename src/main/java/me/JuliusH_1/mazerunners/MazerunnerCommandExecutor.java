@@ -1,5 +1,8 @@
 package me.JuliusH_1.mazerunners;
 
+import me.JuliusH_1.mazerunners.handlers.EventEndHandler;
+import me.JuliusH_1.mazerunners.handlers.EventHandler;
+import me.JuliusH_1.mazerunners.handlers.EventStartHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -11,17 +14,25 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class MazerunnerCommandExecutor implements CommandExecutor {
 
     private final JavaPlugin plugin;
+    private final EventStartHandler eventStartHandler;
     private Location respawnLocation;
-    private final Map<Integer, Location> teamSpawns = new HashMap<>();
+    private final Map<Integer, Location> teamSpawns;
     private String gameMode;
+    private EventEndHandler eventEndHandler;
+    private EventHandler eventHandler;
 
-    public MazerunnerCommandExecutor(JavaPlugin plugin) {
+    public MazerunnerCommandExecutor(JavaPlugin plugin, EventStartHandler eventStartHandler) {
         this.plugin = plugin;
+        this.eventStartHandler = eventStartHandler;
+        this.teamSpawns = new HashMap<>();
         this.gameMode = "";
     }
 
@@ -46,7 +57,7 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
                 return false;
             }
             Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
-            ((Mazerunners) plugin).startEvent(players, teamNumbers, playersPerTeam, gameMode, durationInSeconds);
+            eventStartHandler.startEvent(players, teamNumbers, playersPerTeam, gameMode, durationInSeconds);
             return true;
         } else if (args[0].equalsIgnoreCase("respawn")) {
             if (sender instanceof Player) {
@@ -80,7 +91,7 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
             }
             return true;
         } else if (args[0].equalsIgnoreCase("events")) {
-            Map<Integer, String> ongoingEvents = ((Mazerunners) plugin).getOngoingEvents();
+            Map<Integer, String> ongoingEvents = eventHandler.getOngoingEvents();
             if (ongoingEvents.isEmpty()) {
                 sender.sendMessage("There are no ongoing Mazerunner events.");
             } else {
@@ -97,7 +108,7 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
             }
             try {
                 int eventNumber = Integer.parseInt(args[1]);
-                Set<String> players = ((Mazerunners) plugin).getEventPlayers(eventNumber);
+                Set<String> players = eventHandler.getEventPlayers(eventNumber);
                 if (players.isEmpty()) {
                     sender.sendMessage("No players found for event number " + eventNumber);
                 } else {
@@ -158,7 +169,7 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
                 return true;
             } else if (args.length == 3 && args[1].equalsIgnoreCase("end")) {
                 int eventNumber = Integer.parseInt(args[2]);
-                ((Mazerunners) plugin).endEvent(eventNumber);
+                eventEndHandler.endEvent(eventNumber);
                 return true;
             } else {
                 sender.sendMessage("Usage: /mazerunner event <help|end> [eventNumber]");
