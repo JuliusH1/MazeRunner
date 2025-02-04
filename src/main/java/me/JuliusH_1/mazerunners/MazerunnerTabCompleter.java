@@ -17,7 +17,7 @@ public class MazerunnerTabCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("mazerunner")) {
             if (args.length == 1) {
-                return Arrays.asList("start", "respawn", "spectate", "teamspawn", "end", "events", "players", "team");
+                return Arrays.asList("start", "respawn", "spectate", "teamspawn", "end", "events", "players", "team", "reload");
             } else if (args.length == 2 && args[0].equalsIgnoreCase("team")) {
                 return Arrays.asList("1", "2", "3", "4"); // List of team numbers
             } else if (args.length == 3 && args[0].equalsIgnoreCase("team")) {

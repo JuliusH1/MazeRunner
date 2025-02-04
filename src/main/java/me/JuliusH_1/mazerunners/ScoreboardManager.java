@@ -11,6 +11,7 @@ public class ScoreboardManager {
 
     private final Mazerunners plugin;
     private final MazerunnerCommandExecutor commandExecutor;
+    private static Scoreboard scoreboard;
 
     public ScoreboardManager(Mazerunners plugin, MazerunnerCommandExecutor commandExecutor) {
         this.plugin = plugin;
@@ -48,5 +49,22 @@ public class ScoreboardManager {
         }
 
         player.setScoreboard(scoreboard);
+    }
+
+    public void updateScoreboardForAll() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updateScoreboard(player);
+        }
+    }
+
+    public static void loadScoreboard() {
+        org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if (manager != null) {
+            scoreboard = manager.getNewScoreboard();
+        }
+    }
+
+    public static Scoreboard getScoreboard() {
+        return scoreboard;
     }
 }

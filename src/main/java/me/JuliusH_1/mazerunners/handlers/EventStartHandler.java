@@ -36,11 +36,18 @@ public class EventStartHandler {
         int eventNumber = eventHandler.startEvent(playerNames);
         Bukkit.getServer().broadcastMessage("The Mazerunner event 'Event_" + eventNumber + "' has started with " + teamNumbers + " teams, " + playersPerTeam + " players per team, in " + gameMode + " mode!");
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                new EventEndHandler(plugin, teamHandler, eventHandler).endEvent(eventNumber);
-            }
-        }.runTaskLater(plugin, durationInSeconds * 20L);
+        if (durationInSeconds != -1) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    new EventEndHandler(plugin, teamHandler, eventHandler).endEvent(eventNumber);
+                }
+            }.runTaskLater(plugin, durationInSeconds * 20L);
+        }
+    }
+
+    public void endEvent(int eventNumber) {
+        eventHandler.endEvent(eventNumber);
+        Bukkit.getServer().broadcastMessage("The Mazerunner event 'Event_" + eventNumber + "' has ended!");
     }
 }

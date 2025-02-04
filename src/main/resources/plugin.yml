@@ -1,6 +1,7 @@
 name: mazerunners
 version: 1.0
 main: me.JuliusH_1.mazerunners.Mazerunners
+softdepend: [ItemsAdder]
 api-version: 1.21
 commands:
   mazerunner:

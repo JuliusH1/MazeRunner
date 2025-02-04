@@ -4,6 +4,7 @@ me\JuliusH_1\mazerunners\Mazerunners.class
 me\JuliusH_1\mazerunners\handlers\EventStartHandler.class
 me\JuliusH_1\mazerunners\handlers\EventStartHandler$1.class
 me\JuliusH_1\mazerunners\handlers\EventEndHandler.class
+me\JuliusH_1\mazerunners\handlers\PlayerEventHandler.class
 me\JuliusH_1\mazerunners\handlers\TeamHandler.class
 me\JuliusH_1\mazerunners\MazerunnerCommandExecutor.class
 me\JuliusH_1\mazerunners\handlers\EventHandler.class
