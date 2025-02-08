@@ -24,6 +24,8 @@ public final class Mazerunners extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        super.onEnable();
+        registerCustomEntities();
         teamHandler = new TeamHandler();
         eventHandler = new EventHandler();
         eventStartHandler = new EventStartHandler(this, teamHandler, eventHandler);
@@ -59,6 +61,15 @@ public final class Mazerunners extends JavaPlugin {
         if (scoreboardEnabled) {
             // Initialize and update the scoreboard here
             // Example: createScoreboard();
+        }
+    }
+
+    private void registerCustomEntities() {
+        try {
+            // Register the custom spider entity
+            EntityTypes.b.a(EntityTypes.SPIDER, CustomSpider.class);
+        } catch (Exception e) {
+            getLogger().severe("Failed to register custom entities: " + e.getMessage());
         }
     }
 

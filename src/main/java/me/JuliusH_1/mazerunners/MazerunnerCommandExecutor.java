@@ -299,4 +299,10 @@ public class MazerunnerCommandExecutor implements CommandExecutor {
     public JavaPlugin getPlugin() {
         return plugin;
     }
+
+    public boolean isPlayerInTeam(Player player, int teamNumber) {
+        Scoreboard scoreboard = player.getScoreboard();
+        Team team = scoreboard.getTeam("Team" + teamNumber);
+        return team != null && team.hasEntry(player.getName());
+    }
 }

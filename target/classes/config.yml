@@ -1,6 +1,7 @@
 # config.yml
 welcome-message: "§6Welcome {player} to the §eMazerunner §6event!"
 death-message: "§c§l{player} has been eliminated!"
+win-message: "§6§l{team} §6has won the §e§lMaze§e§lRunner §6event!"
 
 scoreboard:
   enabled: true
@@ -11,7 +12,7 @@ scoreboard:
     - "§ePlayers: §6{players}"
     - "§eGame Mode: §6{gamemode}"
     - "§7§m------------------"
-    - "§e{team1}"
+    - "§a{team1}"
     - "§b{team2}"
     - "§c{team3}"
     - "§6{team4}"

@@ -1,9 +1,16 @@
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\entities\CustomGriever.java
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\entities\Entity.java
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\entities\EntityInsentient.java
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\entities\EntityLiving.java
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\entities\EntityMonster.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\handlers\EventEndHandler.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\handlers\EventHandler.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\handlers\EventStartHandler.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\handlers\PlayerEventHandler.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\handlers\TeamHandler.java
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\items\MazeRunnerHelmet.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\listeners\PlayerDeathListener.java
+C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\listeners\PlayerHelmetListener.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\listeners\PlayerJoinQuitListener.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\listeners\PlayerRespawnListener.java
 C:\Users\Julius\IdeaProjects\mazerunners\src\main\java\me\JuliusH_1\mazerunners\listeners\TeamChatListener.java

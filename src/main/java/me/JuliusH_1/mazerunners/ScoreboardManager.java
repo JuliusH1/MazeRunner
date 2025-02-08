@@ -38,6 +38,10 @@ public class ScoreboardManager {
                 if (team == null) {
                     team = scoreboard.registerNewTeam("Team" + i);
                 }
+                // Add player to the team if they are part of it
+                if (commandExecutor.isPlayerInTeam(player, i)) {
+                    team.addEntry(player.getName());
+                }
                 int playersLeft = team.getSize();
                 String teamDisplay = "Team " + i + ": " + playersLeft;
                 if (team.hasEntry(player.getName())) {
